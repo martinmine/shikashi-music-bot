@@ -14,7 +14,7 @@ namespace ShikashiBot.Services
             var ffmpeg = new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = $"-i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                Arguments = $"-loglevel panic -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
@@ -26,12 +26,11 @@ namespace ShikashiBot.Services
 
         public async Task SendAsync(IAudioClient client, string path)
         {
-            // Create FFmpeg using the previous example
             var ffmpeg = CreateStream(path);
             var output = ffmpeg.StandardOutput.BaseStream;
-            var discord = client.CreatePCMStream(AudioApplication.Mixed);
+            var discord = client.CreatePCMStream(AudioApplication.Music);
             await output.CopyToAsync(discord);
-            await discord.FlushAsync();
+            await discord.FlushAsync().ConfigureAwait(false);
             Console.WriteLine($"ffmpeg exited with code {ffmpeg.ExitCode}");
         }
     }
