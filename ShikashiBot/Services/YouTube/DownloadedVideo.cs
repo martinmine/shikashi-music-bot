@@ -34,6 +34,6 @@ namespace ShikashiBot.Services.YouTube
         /// <summary>
         /// Name of the file it got stored on.
         /// </summary>
-        public string FileName { get { return $"Songs/{Title}-{DisplayID}.mp3"; } }
+        public string FileName { get; set; }
     }
 }
