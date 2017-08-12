@@ -14,10 +14,9 @@ namespace ShikashiBot.Services
             var ffmpeg = new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = $"-loglevel panic -i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                Arguments = $"-i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
+                RedirectStandardOutput = true
             };
 
             Console.WriteLine($"Starting ffmpeg with args {ffmpeg.Arguments}");
