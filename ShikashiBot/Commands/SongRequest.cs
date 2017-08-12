@@ -1,9 +1,7 @@
-﻿using Discord.Audio;
-using Discord.Commands;
+﻿using Discord.Commands;
 using ShikashiBot.Services;
 using ShikashiBot.Services.YouTube;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ShikashiBot.Commands
@@ -12,7 +10,7 @@ namespace ShikashiBot.Commands
     {
         public YouTubeDownloadService YoutubeDownloadService { get; set; }
         public SongService SongService { get; set; }
-        public AudioPlaybackService AudioPlaybackService { get; set; }
+        
 
         [Alias("sq", "request", "play")]
         [Command("songrequest", RunMode = RunMode.Async), Summary("Requests a song to be played")]
@@ -33,12 +31,6 @@ namespace ShikashiBot.Commands
                 await ReplyAsync($"**{Context.User.Mention} queued {video.Title} | `{TimeSpan.FromSeconds(video.Duration)}` | {url}**");
 
                 SongService.Queue(video);
-
-                var guildChannel = (await Context.Guild.GetVoiceChannelsAsync()).Where(t => t.Name == "Recreation").SingleOrDefault();
-
-
-                IAudioClient audioClient = await guildChannel.ConnectAsync();
-                await AudioPlaybackService.SendAsync(audioClient, video.FileName);
             }
             catch (Exception e)
             {

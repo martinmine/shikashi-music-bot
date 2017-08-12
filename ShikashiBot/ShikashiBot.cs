@@ -29,6 +29,8 @@ namespace ShikashiBot
             ConfigureServices(serviceCollection);
             _services = serviceCollection.BuildServiceProvider();
 
+            _services.GetService<SongService>().AudioPlaybackService = _services.GetService<AudioPlaybackService>();
+
             await InstallCommands();
 
             await _client.LoginAsync(TokenType.Bot, _botSecret);
@@ -52,7 +54,8 @@ namespace ShikashiBot
             if (arg.Name == "Shikashi")
             {
                 Console.WriteLine("Registering handler for Shikashi");
-                var channel = arg.TextChannels.Where(t => t.Name == "dev").SingleOrDefault();
+                var channel = arg.VoiceChannels.Where(t => t.Name == "Recreation").SingleOrDefault();
+                _services.GetService<SongService>().SetVoiceChannel(channel);
 
                // channel.SendMessageAsync("Ready for requests!");
             }
