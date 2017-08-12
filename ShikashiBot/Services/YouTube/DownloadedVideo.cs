@@ -34,6 +34,7 @@ namespace ShikashiBot.Services.YouTube
         /// <summary>
         /// Name of the file it got stored on.
         /// </summary>
+        [JsonProperty(PropertyName = "_filename")]
         public string FileName { get; set; }
     }
 }
