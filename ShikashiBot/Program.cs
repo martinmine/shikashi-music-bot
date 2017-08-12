@@ -3,6 +3,9 @@
     class Program
     {
         static void Main(string[] args)
-                => new ShikashiBot().MainAsync().GetAwaiter().GetResult();
+        {
+            DependencyHelper.TestDependencies();
+            new ShikashiBot().MainAsync().GetAwaiter().GetResult();
+        }
     }
 }
