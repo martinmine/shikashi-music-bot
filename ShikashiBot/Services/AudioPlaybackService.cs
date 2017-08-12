@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,6 +32,7 @@ namespace ShikashiBot.Services
             await output.CopyToAsync(discord);
             await discord.FlushAsync().ConfigureAwait(false);
             Console.WriteLine($"ffmpeg exited with code {ffmpeg.ExitCode}");
+            File.Delete(path);
         }
     }
 }
