@@ -10,7 +10,6 @@ namespace ShikashiBot.Commands
     {
         public YouTubeDownloadService YoutubeDownloadService { get; set; }
         public SongService SongService { get; set; }
-        
 
         [Alias("sq", "request", "play")]
         [Command("songrequest", RunMode = RunMode.Async), Summary("Requests a song to be played")]
