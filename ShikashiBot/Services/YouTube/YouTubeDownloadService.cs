@@ -18,7 +18,7 @@ namespace ShikashiBot.Services.YouTube
                 RedirectStandardOutput = true,
                 CreateNoWindow = true,
                 FileName = "youtube-dl",
-                Arguments = $"-o Songs/{filename}.%(ext)s --extract-audio --no-overwrites --print-json " + url
+                Arguments = $"-o Songs/{filename}.mp3 --extract-audio --no-overwrites --print-json --audio-format mp3 " + url
             };
 
             Console.WriteLine($"Starting download: {youtubeDlStartupInfo.Arguments}");
