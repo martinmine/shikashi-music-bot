@@ -33,7 +33,7 @@ namespace ShikashiBot
 
             await InstallCommands();
 
-            await _client.LoginAsync(TokenType.Bot, _botSecret);
+            await _client.LoginAsync(TokenType.User, _botSecret);
             await _client.StartAsync();
             
             _client.GuildAvailable += _client_GuildAvailable;
@@ -51,10 +51,10 @@ namespace ShikashiBot
 
         private Task _client_GuildAvailable(SocketGuild arg)
         {
-            if (arg.Name == "Shikashi")
+            if (arg.Name == "1up")
             {
                 Console.WriteLine("Registering handler for Shikashi");
-                var channel = arg.VoiceChannels.Where(t => t.Name == "Recreation").SingleOrDefault();
+                var channel = arg.GetVoiceChannel(183635996838068226);
                 _services.GetService<SongService>().SetVoiceChannel(channel);
 
                // channel.SendMessageAsync("Ready for requests!");
@@ -71,6 +71,11 @@ namespace ShikashiBot
             _client.MessageReceived += HandleCommand;
             // Discover all of the commands in this assembly and load them.
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            int count = _commands.Commands.Count();
+            if (count <= 1)
+            {
+                throw new Exception("Not enough commands");
+            }
         }
 
         public async Task HandleCommand(SocketMessage messageParam)
