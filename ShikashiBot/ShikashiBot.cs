@@ -76,10 +76,11 @@ namespace ShikashiBot
             if (arg.Name == "1up")
             {
                 Console.WriteLine("Registering handler for Shikashi");
-                var channel = arg.GetVoiceChannel(183635996838068226);
-                _services.GetService<SongService>().SetVoiceChannel(channel);
+                var musicVoiceChannel = arg.GetVoiceChannel(183635996838068226);
+                var musicRequestChannel = arg.TextChannels.Where(t => t.Name.ToLower().Contains("music")).SingleOrDefault();
 
-               // channel.SendMessageAsync("Ready for requests!");
+                _services.GetService<SongService>().SetVoiceChannel(musicVoiceChannel);
+                _services.GetService<SongService>().SetMessageChannel(musicRequestChannel);
             }
 
 

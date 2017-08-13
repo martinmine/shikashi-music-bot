@@ -33,7 +33,9 @@ namespace ShikashiBot.Commands
                     return;
                 }
 
-                await ReplyAsync($"**{Context.User.Mention} queued {video.Title} | `{TimeSpan.FromSeconds(video.Duration)}` | {url}**");
+                video.Requester = Context.User.Mention;
+
+                await ReplyAsync($"{Context.User.Mention} queued {video.Title} | `{TimeSpan.FromSeconds(video.Duration)}` | {url}");
 
                 SongService.Queue(video);
             }
@@ -65,7 +67,7 @@ namespace ShikashiBot.Commands
             if (SongService.NowPlaying == null)
                 await ReplyAsync($"{Context.User.Mention} current queue is empty");
             else
-                await ReplyAsync($"{Context.User.Mention} now playing `{SongService.NowPlaying.Title}`");
+                await ReplyAsync($"{Context.User.Mention} now playing `{SongService.NowPlaying.Title}` requested by {SongService.NowPlaying.Requester}");
         }
     }
 }

@@ -36,5 +36,10 @@ namespace ShikashiBot.Services.YouTube
         /// </summary>
         [JsonProperty(PropertyName = "_filename")]
         public string FileName { get; set; }
+
+        /// <summary>
+        /// Person requesting the download
+        /// </summary>
+        public string Requester { get; set; }
     }
 }
