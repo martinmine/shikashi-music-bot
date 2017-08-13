@@ -35,7 +35,7 @@ namespace ShikashiBot.Commands
 
                 video.Requester = Context.User.Mention;
 
-                await ReplyAsync($"{Context.User.Mention} queued {video.Title} | `{TimeSpan.FromSeconds(video.Duration)}` | {url}");
+                await ReplyAsync($"{Context.User.Mention} queued **{video.Title}** | `{TimeSpan.FromSeconds(video.Duration)}` | {url}");
 
                 SongService.Queue(video);
             }
