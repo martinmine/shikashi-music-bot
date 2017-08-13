@@ -105,15 +105,36 @@ namespace ShikashiBot
             // Don't process the command if it was a System Message
             var message = messageParam as SocketUserMessage;
             if (message == null) return;
+
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
-            // Determine if the message is a command, based on if it starts with '!' or a mention prefix
-            if (!(message.HasCharPrefix('!', ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))) return;
+            // Determine if the message is a command, based on if it starts with '!', a mention prefix, or an url.
+            if (!Uri.IsWellFormedUriString(message.Content, UriKind.Absolute) 
+                && !message.HasCharPrefix('!', ref argPos) 
+                && !message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            {
+                return;
+            }
+
+            if (!message.Channel.Name.ToLower().Contains("music"))
+            {
+                return;
+            }
+
             // Create a Command Context
             var context = new CommandContext(_client, message);
             // Execute the command. (result does not indicate a return value, 
             // rather an object stating if the command executed successfully)
-            var result = await _commands.ExecuteAsync(context, argPos, _services);
+            IResult result;
+            if (Uri.IsWellFormedUriString(message.Content, UriKind.Absolute))
+            {
+                result = await _commands.ExecuteAsync(context, "sq " + message.Content, _services);
+            }
+            else
+            {
+                result = await _commands.ExecuteAsync(context, argPos, _services);
+            }
+
             if (!result.IsSuccess)
                 await context.Channel.SendMessageAsync(result.ErrorReason);
         }
