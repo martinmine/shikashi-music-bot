@@ -2,8 +2,7 @@
 using Discord.Audio;
 using ShikashiBot.Services.YouTube;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using System.IO;
 using System.Threading.Tasks.Dataflow;
 
 namespace ShikashiBot.Services
@@ -14,6 +13,7 @@ namespace ShikashiBot.Services
         private BufferBlock<DownloadedVideo> _songQueue;
 
         public AudioPlaybackService AudioPlaybackService { get; set; }
+        public DownloadedVideo NowPlaying { get; private set; }
 
         public SongService()
         {
@@ -32,8 +32,9 @@ namespace ShikashiBot.Services
 
             while (await _songQueue.OutputAvailableAsync())
             {
-                DownloadedVideo video = await _songQueue.ReceiveAsync();
-                await AudioPlaybackService.SendAsync(audioClient, video.FileName);
+                NowPlaying = await _songQueue.ReceiveAsync();
+                await AudioPlaybackService.SendAsync(audioClient, NowPlaying.FileName);
+                File.Delete(NowPlaying.FileName);
             }
         }
 

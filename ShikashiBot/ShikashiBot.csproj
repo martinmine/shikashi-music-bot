@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <Folder Include="Songs\" />
+    <Folder Include="Songs\" />
   </ItemGroup>
 
 </Project>

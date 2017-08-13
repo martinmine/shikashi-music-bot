@@ -45,10 +45,20 @@ namespace ShikashiBot.Commands
         }
 
         [Command("skip"), Summary("Skips current song")]
-        public async Task SkipSong([Remainder, Summary("URL of the video to play")] string url)
+        public async Task SkipSong()
         {
             SongService.Next();
             await ReplyAsync("Skipped song");
+        }
+
+        [Alias("np", "currentsong", "songname", "song")]
+        [Command("nowplaying"), Summary("Prints current playing song")]
+        public async Task NowPlaying()
+        {
+            if (SongService.NowPlaying == null)
+                await ReplyAsync($"{Context.User.Mention} current queue is empty");
+            else
+                await ReplyAsync($"{Context.User.Mention} now playing `{SongService.NowPlaying.Title}`");
         }
     }
 }

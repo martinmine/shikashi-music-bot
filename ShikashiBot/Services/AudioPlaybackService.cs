@@ -1,7 +1,6 @@
 ﻿using Discord.Audio;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace ShikashiBot.Services
@@ -32,7 +31,6 @@ namespace ShikashiBot.Services
             await output.CopyToAsync(discord);
             await discord.FlushAsync().ConfigureAwait(false);
             Console.WriteLine($"ffmpeg exited with code {_currentProcess.ExitCode}");
-            File.Delete(path);
         }
 
         public void StopCurrentOperation()
