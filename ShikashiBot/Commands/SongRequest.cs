@@ -44,6 +44,7 @@ namespace ShikashiBot.Commands
             await ReplyAsync("Queue cleared");
         }
 
+        [Alias("next", "nextsong")]
         [Command("skip"), Summary("Skips current song")]
         public async Task SkipSong()
         {
