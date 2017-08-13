@@ -17,6 +17,12 @@ namespace ShikashiBot.Commands
         {
             try
             {
+                if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                {
+                    await ReplyAsync($"{Context.User.Mention} please provide a valid song URL");
+                    return;
+                }
+
                 var downloadAnnouncement = await ReplyAsync($"{Context.User.Mention} attempting to download {url}");
                 DownloadedVideo video = await YoutubeDownloadService.DownloadVideo(url);
                 await downloadAnnouncement.DeleteAsync();
