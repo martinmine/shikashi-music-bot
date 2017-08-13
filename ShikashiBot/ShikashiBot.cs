@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ShikashiBot.Services;
 using ShikashiBot.Services.YouTube;
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -16,10 +17,20 @@ namespace ShikashiBot
         private DiscordSocketClient _client;
         private CommandService _commands;
         private IServiceProvider _services;
-        private string _botSecret = Environment.GetEnvironmentVariable("BOT_SECRET");
 
         public async Task MainAsync()
         {
+            const string secretLocation = "Settings/BotSecret.txt";
+            if (!File.Exists(secretLocation))
+            {
+                Directory.CreateDirectory("Settings");
+                Console.WriteLine("Enter the bot secret:");
+                File.WriteAllText(secretLocation, Console.ReadLine());
+                Console.Clear();
+            }
+
+            string botSecret = File.ReadAllText(secretLocation);
+
             _client = new DiscordSocketClient();
             _client.Log += Log;
 
@@ -31,15 +42,26 @@ namespace ShikashiBot
 
             _services.GetService<SongService>().AudioPlaybackService = _services.GetService<AudioPlaybackService>();
 
-            await InstallCommands();
+            try
+            {
+                await InstallCommands();
 
-            await _client.LoginAsync(TokenType.User, _botSecret);
-            await _client.StartAsync();
-            
-            _client.GuildAvailable += _client_GuildAvailable;
+                await _client.LoginAsync(TokenType.User, botSecret);
+                await _client.StartAsync();
 
-            // Block this task until the program is closed.
-            await Task.Delay(-1);
+                _client.GuildAvailable += _client_GuildAvailable;
+
+                // Block this task until the program is closed.
+                await Task.Delay(-1);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Unable to start the bot because:\n {e}");
+                Console.WriteLine("Clear BotSecret.txt? (y/n)");
+
+                if (Console.ReadLine().ToLower() == "y")
+                    File.Delete(secretLocation);
+            }
         }
 
         private void ConfigureServices(IServiceCollection serviceCollection)
