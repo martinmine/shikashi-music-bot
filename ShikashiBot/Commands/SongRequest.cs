@@ -36,5 +36,19 @@ namespace ShikashiBot.Commands
                 Console.WriteLine($"Error while processing song requet: {e}");
             }
         }
+
+        [Command("clear"), Summary("Clears all songs in queue")]
+        public async Task ClearQueue()
+        {
+            SongService.Clear();
+            await ReplyAsync("Queue cleared");
+        }
+
+        [Command("skip"), Summary("Skips current song")]
+        public async Task SkipSong([Remainder, Summary("URL of the video to play")] string url)
+        {
+            SongService.Next();
+            await ReplyAsync("Skipped song");
+        }
     }
 }
