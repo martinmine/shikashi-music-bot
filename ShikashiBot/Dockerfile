@@ -8,6 +8,6 @@ RUN apt-get update && apt-get upgrade && \
     apt-get update && \
     apt-get install -y dotnet-dev-1.1.0 wget ffmpeg \        
         libsodium-dev libopus-dev python-setuptools && \
-		easy_install pip && pip install --upgrade youtube-dl
+	easy_install pip && pip install --upgrade youtube-dl
 COPY ${source:-bin/Release/netcoreapp1.1/publish} .
 ENTRYPOINT ["dotnet", "ShikashiBot.dll"]
