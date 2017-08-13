@@ -12,14 +12,12 @@ namespace ShikashiBot.Services
     {
         private IVoiceChannel _voiceChannel;
         private BufferBlock<DownloadedVideo> _songQueue;
-        private CancellationTokenSource _tokenSource;
 
         public AudioPlaybackService AudioPlaybackService { get; set; }
 
         public SongService()
         {
             this._songQueue = new BufferBlock<DownloadedVideo>();
-            this._tokenSource = new CancellationTokenSource();
         }
 
         public void SetVoiceChannel(IVoiceChannel voiceChannel)
@@ -34,16 +32,14 @@ namespace ShikashiBot.Services
 
             while (await _songQueue.OutputAvailableAsync())
             {
-                await Task.Run(async () =>  {
-                    DownloadedVideo video = await _songQueue.ReceiveAsync();
-                    await AudioPlaybackService.SendAsync(audioClient, video.FileName);
-                }, _tokenSource.Token);
+                DownloadedVideo video = await _songQueue.ReceiveAsync();
+                await AudioPlaybackService.SendAsync(audioClient, video.FileName);
             }
         }
 
         public void Next()
         {
-            _tokenSource.Cancel();
+            AudioPlaybackService.StopCurrentOperation();
         }
 
         public IList<DownloadedVideo> Clear()
