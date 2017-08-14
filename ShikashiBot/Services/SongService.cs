@@ -40,9 +40,16 @@ namespace ShikashiBot.Services
             while (await _songQueue.OutputAvailableAsync())
             {
                 NowPlaying = await _songQueue.ReceiveAsync();
-                await _messageChannel?.SendMessageAsync($"Now playing **{NowPlaying.Title}** | `{TimeSpan.FromSeconds(NowPlaying.Duration)}` | requested by {NowPlaying.Requester} | {NowPlaying.Url}");
-                await AudioPlaybackService.SendAsync(audioClient, NowPlaying.FileName);
-                File.Delete(NowPlaying.FileName);
+                try
+                {
+                    await _messageChannel?.SendMessageAsync($"Now playing **{NowPlaying.Title}** | `{TimeSpan.FromSeconds(NowPlaying.Duration)}` | requested by {NowPlaying.Requester} | {NowPlaying.Url}");
+                    await AudioPlaybackService.SendAsync(audioClient, NowPlaying.FileName);
+                    File.Delete(NowPlaying.FileName);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error while playing song: {e}");
+                }
             }
         }
 
