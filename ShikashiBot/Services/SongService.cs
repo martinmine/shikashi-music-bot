@@ -35,15 +35,16 @@ namespace ShikashiBot.Services
 
         private async void ProcessQueue()
         {
-            IAudioClient audioClient = await _voiceChannel.ConnectAsync();
-
             while (await _songQueue.OutputAvailableAsync())
             {
                 NowPlaying = await _songQueue.ReceiveAsync();
                 try
                 {
                     await _messageChannel?.SendMessageAsync($"Now playing **{NowPlaying.Title}** | `{TimeSpan.FromSeconds(NowPlaying.Duration)}` | requested by {NowPlaying.Requester} | {NowPlaying.Url}");
-                    await AudioPlaybackService.SendAsync(audioClient, NowPlaying.FileName);
+
+                    using (IAudioClient audioClient = await _voiceChannel.ConnectAsync())
+                        await AudioPlaybackService.SendAsync(audioClient, NowPlaying.FileName);
+
                     File.Delete(NowPlaying.FileName);
                 }
                 catch (Exception e)
