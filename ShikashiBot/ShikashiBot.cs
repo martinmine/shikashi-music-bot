@@ -21,32 +21,34 @@ namespace ShikashiBot
         public async Task MainAsync()
         {
             const string secretLocation = "Settings/BotSecret.txt";
-            if (!File.Exists(secretLocation))
-            {
-                Directory.CreateDirectory("Settings");
-                Console.WriteLine("Enter the bot secret:");
-                File.WriteAllText(secretLocation, Console.ReadLine());
-                Console.Clear();
-            }
-
-            string botSecret = File.ReadAllText(secretLocation);
-
-            _client = new DiscordSocketClient();
-            _client.Log += Log;
-
-            _commands = new CommandService();
-
-            IServiceCollection serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            _services = serviceCollection.BuildServiceProvider();
-
-            _services.GetService<SongService>().AudioPlaybackService = _services.GetService<AudioPlaybackService>();
 
             try
             {
+                if (!File.Exists(secretLocation))
+                {
+                    Directory.CreateDirectory("Settings");
+                    Console.WriteLine("Enter the bot secret:");
+                    File.WriteAllText(secretLocation, Console.ReadLine());
+                    Console.Clear();
+                }
+
+                string botSecret = File.ReadAllText(secretLocation);
+
+                _client = new DiscordSocketClient();
+                _client.Log += Log;
+
+                _commands = new CommandService();
+
+                IServiceCollection serviceCollection = new ServiceCollection();
+                ConfigureServices(serviceCollection);
+                _services = serviceCollection.BuildServiceProvider();
+
+                _services.GetService<SongService>().AudioPlaybackService = _services.GetService<AudioPlaybackService>();
+
+            
                 await InstallCommands();
 
-                await _client.LoginAsync(TokenType.User, botSecret);
+                await _client.LoginAsync(TokenType.Bot, botSecret);
                 await _client.StartAsync();
 
                 _client.GuildAvailable += _client_GuildAvailable;
@@ -73,10 +75,10 @@ namespace ShikashiBot
 
         private Task _client_GuildAvailable(SocketGuild arg)
         {
-            if (arg.Name == "1up")
+            if (arg.Name.ToLower() == Environment.GetEnvironmentVariable("SERVER_NAME"))
             {
-                Console.WriteLine("Registering handler for Shikashi");
-                var musicVoiceChannel = arg.GetVoiceChannel(183635996838068226);
+                Console.WriteLine($"Registering handler for {arg.Name}");
+                var musicVoiceChannel = arg.VoiceChannels.Where(t => t.Name.ToLower().Contains("general")).SingleOrDefault();
                 var musicRequestChannel = arg.TextChannels.Where(t => t.Name.ToLower().Contains("music")).SingleOrDefault();
 
                 _services.GetService<SongService>().SetVoiceChannel(musicVoiceChannel);
@@ -84,7 +86,7 @@ namespace ShikashiBot
             }
 
 
-            Console.WriteLine($"Joined {arg.Name}");
+            Console.WriteLine($"Discovered server {arg.Name}");
             return Task.CompletedTask;
         }
 
