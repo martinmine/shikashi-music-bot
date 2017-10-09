@@ -1,11 +1,18 @@
-﻿namespace ShikashiBot
+﻿using System;
+using System.Threading.Tasks;
+
+namespace ShikashiBot
 {
     class Program
     {
-        static void Main(string[] args)
+        public static async Task Main()
         {
             DependencyHelper.TestDependencies();
-            new ShikashiBot().MainAsync().GetAwaiter().GetResult();
+            ShikashiBot bot = new ShikashiBot();
+            await bot.StartAsync();
+
+            // Block until someone types exit in the console
+            while (Console.ReadLine() != "exit") ;
         }
     }
 }

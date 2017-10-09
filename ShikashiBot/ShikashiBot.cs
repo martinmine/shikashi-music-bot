@@ -18,7 +18,7 @@ namespace ShikashiBot
         private CommandService _commands;
         private IServiceProvider _services;
 
-        public async Task MainAsync()
+        public async Task StartAsync()
         {
             const string secretLocation = "Settings/BotSecret.txt";
 
@@ -52,9 +52,6 @@ namespace ShikashiBot
                 await _client.StartAsync();
 
                 _client.GuildAvailable += _client_GuildAvailable;
-
-                // Block this task until the program is closed.
-                await Task.Delay(-1);
             }
             catch (Exception e)
             {
