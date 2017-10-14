@@ -11,8 +11,8 @@ namespace ShikashiBot
             ShikashiBot bot = new ShikashiBot();
             await bot.StartAsync();
 
-            // Block until someone types exit in the console
-            while (Console.ReadLine() != "exit") ;
+            // Block indefinitely
+            await Task.Delay(-1);
         }
     }
 }
