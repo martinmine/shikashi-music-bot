@@ -37,6 +37,7 @@ namespace ShikashiBot.Services
         {
             while (await _songQueue.OutputAvailableAsync())
             {
+                Console.WriteLine("Waiting for songs");
                 NowPlaying = await _songQueue.ReceiveAsync();
                 try
                 {
@@ -67,7 +68,8 @@ namespace ShikashiBot.Services
         {
             IList<DownloadedVideo> skippedSongs;
             _songQueue.TryReceiveAll(out skippedSongs);
-            Next();
+
+            Console.WriteLine($"Skipped {skippedSongs.Count} songs");
 
             return skippedSongs;
         }

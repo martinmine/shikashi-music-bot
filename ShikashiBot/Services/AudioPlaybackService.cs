@@ -29,7 +29,8 @@ namespace ShikashiBot.Services
             var output = _currentProcess.StandardOutput.BaseStream;
             var discord = client.CreatePCMStream(AudioApplication.Music);
             await output.CopyToAsync(discord);
-            await discord.FlushAsync().ConfigureAwait(false);
+            await discord.FlushAsync();
+            _currentProcess.WaitForExit();
             Console.WriteLine($"ffmpeg exited with code {_currentProcess.ExitCode}");
         }
 
