@@ -26,7 +26,7 @@ namespace ShikashiBot.Commands
                 }
 
                 var downloadAnnouncement = await ReplyAsync($"{Context.User.Mention} attempting to download {url}");
-                DownloadedVideo video = await YoutubeDownloadService.DownloadVideo(url);
+                var video = await YoutubeDownloadService.DownloadVideo(url);
                 await downloadAnnouncement.DeleteAsync();
 
                 if (video == null)

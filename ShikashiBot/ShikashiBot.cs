@@ -32,7 +32,7 @@ namespace ShikashiBot
                     Console.Clear();
                 }
 
-                string botSecret = File.ReadAllText(secretLocation);
+                var botSecret = File.ReadAllText(secretLocation);
 
                 _client = new DiscordSocketClient();
                 _client.Log += Log;
@@ -71,7 +71,7 @@ namespace ShikashiBot
 
             // Discover all of the commands in this assembly and load them.
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
-            int count = _commands.Commands.Count();
+            var count = _commands.Commands.Count();
             if (count <= 1)
             {
                 throw new Exception("Not enough commands");
@@ -88,7 +88,7 @@ namespace ShikashiBot
             }
 
             // Create a number to track where the prefix ends and the command begins
-            int argPos = 0;
+            var argPos = 0;
 
             // Determine if the message is a command, based on if it starts with '!', a mention prefix, or an url.
             if (!Uri.IsWellFormedUriString(message.Content, UriKind.Absolute)

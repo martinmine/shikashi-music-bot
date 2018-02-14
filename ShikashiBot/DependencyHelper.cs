@@ -7,9 +7,9 @@ namespace ShikashiBot
     {
         public static void TestDependencies()
         {
-            string opusVersion = Marshal.PtrToStringAnsi(OpusVersionString());
+            var opusVersion = Marshal.PtrToStringAnsi(OpusVersionString());
             Console.WriteLine($"Loaded opus with version string: {opusVersion}");
-            string sodiumVersion = Marshal.PtrToStringAnsi(SodiumVersionString());
+            var sodiumVersion = Marshal.PtrToStringAnsi(SodiumVersionString());
             Console.WriteLine($"Loaded sodium with version string: {sodiumVersion}");
         }
 

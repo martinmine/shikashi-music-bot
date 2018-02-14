@@ -65,7 +65,7 @@ namespace ShikashiBot.Services
                     await _messageChannel?.SendMessageAsync($"Now playing **{NowPlaying.Title}** | `{TimeSpan.FromSeconds(NowPlaying.Duration)}` | requested by {NowPlaying.Requester} | {NowPlaying.Url}");
 
                     Console.WriteLine("Connecting to voice channel");
-                    using (IAudioClient audioClient = await _voiceChannel.ConnectAsync())
+                    using (var audioClient = await _voiceChannel.ConnectAsync())
                     {
                         Console.WriteLine("Connected!");
                         await AudioPlaybackService.SendAsync(audioClient, NowPlaying.FileName);

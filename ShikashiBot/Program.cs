@@ -7,7 +7,7 @@ namespace ShikashiBot
         public static async Task Main()
         {
             DependencyHelper.TestDependencies();
-            ShikashiBot bot = new ShikashiBot();
+            var bot = new ShikashiBot();
             await bot.StartAsync();
 
             // Block indefinitely

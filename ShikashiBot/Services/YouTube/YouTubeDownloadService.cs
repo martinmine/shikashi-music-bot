@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace ShikashiBot.Services.YouTube
@@ -10,9 +9,9 @@ namespace ShikashiBot.Services.YouTube
     {
         public async Task<DownloadedVideo> DownloadVideo(string url)
         {
-            Guid filename = Guid.NewGuid();
+            var filename = Guid.NewGuid();
 
-            ProcessStartInfo youtubeDlStartupInfo = new ProcessStartInfo
+            var youtubeDlStartupInfo = new ProcessStartInfo
             {
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -22,8 +21,8 @@ namespace ShikashiBot.Services.YouTube
             };
 
             Console.WriteLine($"Starting download: {youtubeDlStartupInfo.Arguments}");
-            Process youtubeDl = Process.Start(youtubeDlStartupInfo);
-            string jsonOutput = await youtubeDl.StandardOutput.ReadToEndAsync();
+            var youtubeDl = Process.Start(youtubeDlStartupInfo);
+            var jsonOutput = await youtubeDl.StandardOutput.ReadToEndAsync();
             youtubeDl.WaitForExit();
             Console.WriteLine($"Download completed with exit code {youtubeDl.ExitCode}");
 
