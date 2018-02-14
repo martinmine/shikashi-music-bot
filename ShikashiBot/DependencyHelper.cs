@@ -3,13 +3,8 @@ using System.Runtime.InteropServices;
 
 namespace ShikashiBot
 {
-    class DependencyHelper
+    internal class DependencyHelper
     {
-        [DllImport("opus", EntryPoint = "opus_get_version_string", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr OpusVersionString();
-        [DllImport("libsodium", EntryPoint = "sodium_version_string", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr SodiumVersionString();
-        
         public static void TestDependencies()
         {
             string opusVersion = Marshal.PtrToStringAnsi(OpusVersionString());
@@ -17,5 +12,11 @@ namespace ShikashiBot
             string sodiumVersion = Marshal.PtrToStringAnsi(SodiumVersionString());
             Console.WriteLine($"Loaded sodium with version string: {sodiumVersion}");
         }
+
+        [DllImport("opus", EntryPoint = "opus_get_version_string", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr OpusVersionString();
+
+        [DllImport("libsodium", EntryPoint = "sodium_version_string", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr SodiumVersionString();
     }
 }

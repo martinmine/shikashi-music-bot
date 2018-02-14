@@ -1,18 +1,18 @@
-﻿using Discord;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using ShikashiBot.Services;
 using ShikashiBot.Services.YouTube;
-using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 
 namespace ShikashiBot
 {
-    class ShikashiBot
+    internal class ShikashiBot
     {
         private DiscordSocketClient _client;
         private CommandService _commands;
@@ -45,13 +45,12 @@ namespace ShikashiBot
 
                 _services.GetService<SongService>().AudioPlaybackService = _services.GetService<AudioPlaybackService>();
 
-            
                 await InstallCommands();
 
                 await _client.LoginAsync(TokenType.Bot, botSecret);
                 await _client.StartAsync();
 
-                _client.GuildAvailable += _client_GuildAvailable;
+                _client.GuildAvailable += OnClientGuildAvailable;
             }
             catch (Exception e)
             {
@@ -59,38 +58,17 @@ namespace ShikashiBot
                 Console.WriteLine("Clear BotSecret.txt? (y/n)");
 
                 if (Console.ReadLine().ToLower() == "y")
+                {
                     File.Delete(secretLocation);
+                }
             }
-        }
-
-        private void ConfigureServices(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddSingleton(new YouTubeDownloadService());
-            serviceCollection.AddSingleton(new AudioPlaybackService());
-            serviceCollection.AddSingleton(new SongService());
-        }
-
-        private Task _client_GuildAvailable(SocketGuild arg)
-        {
-            if (arg.Name.ToLower() == Environment.GetEnvironmentVariable("SERVER_NAME"))
-            {
-                Console.WriteLine($"Registering handler for {arg.Name}");
-                var musicVoiceChannel = arg.VoiceChannels.Where(t => t.Name.ToLower().Contains("general")).SingleOrDefault();
-                var musicRequestChannel = arg.TextChannels.Where(t => t.Name.ToLower().Contains("music")).SingleOrDefault();
-
-                _services.GetService<SongService>().SetVoiceChannel(musicVoiceChannel);
-                _services.GetService<SongService>().SetMessageChannel(musicRequestChannel);
-            }
-
-
-            Console.WriteLine($"Discovered server {arg.Name}");
-            return Task.CompletedTask;
         }
 
         public async Task InstallCommands()
         {
             // Hook the MessageReceived Event into our Command Handler
             _client.MessageReceived += HandleCommand;
+
             // Discover all of the commands in this assembly and load them.
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
             int count = _commands.Commands.Count();
@@ -104,13 +82,17 @@ namespace ShikashiBot
         {
             // Don't process the command if it was a System Message
             var message = messageParam as SocketUserMessage;
-            if (message == null) return;
+            if (message == null)
+            {
+                return;
+            }
 
             // Create a number to track where the prefix ends and the command begins
             int argPos = 0;
+
             // Determine if the message is a command, based on if it starts with '!', a mention prefix, or an url.
-            if (!Uri.IsWellFormedUriString(message.Content, UriKind.Absolute) 
-                && !message.HasCharPrefix('!', ref argPos) 
+            if (!Uri.IsWellFormedUriString(message.Content, UriKind.Absolute)
+                && !message.HasCharPrefix('!', ref argPos)
                 && !message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 return;
@@ -123,7 +105,8 @@ namespace ShikashiBot
 
             // Create a Command Context
             var context = new CommandContext(_client, message);
-            // Execute the command. (result does not indicate a return value, 
+
+            // Execute the command. (result does not indicate a return value,
             // rather an object stating if the command executed successfully)
             IResult result;
             if (Uri.IsWellFormedUriString(message.Content, UriKind.Absolute))
@@ -136,12 +119,37 @@ namespace ShikashiBot
             }
 
             if (!result.IsSuccess)
+            {
                 await context.Channel.SendMessageAsync(result.ErrorReason);
+            }
         }
 
         private Task Log(LogMessage msg)
         {
             Console.WriteLine($"[LOG] {msg.Message}");
+            return Task.CompletedTask;
+        }
+
+        private void ConfigureServices(IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddSingleton(new YouTubeDownloadService());
+            serviceCollection.AddSingleton(new AudioPlaybackService());
+            serviceCollection.AddSingleton(new SongService());
+        }
+
+        private Task OnClientGuildAvailable(SocketGuild arg)
+        {
+            if (arg.Name.ToLower() == Environment.GetEnvironmentVariable("SERVER_NAME"))
+            {
+                Console.WriteLine($"Registering handler for {arg.Name}");
+                var musicVoiceChannel = arg.VoiceChannels.Where(t => t.Name.ToLower().Contains("general")).SingleOrDefault();
+                var musicRequestChannel = arg.TextChannels.Where(t => t.Name.ToLower().Contains("music")).SingleOrDefault();
+
+                _services.GetService<SongService>().SetVoiceChannel(musicVoiceChannel);
+                _services.GetService<SongService>().SetMessageChannel(musicRequestChannel);
+            }
+
+            Console.WriteLine($"Discovered server {arg.Name}");
             return Task.CompletedTask;
         }
     }

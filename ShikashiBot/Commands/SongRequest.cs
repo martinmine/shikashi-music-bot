@@ -9,10 +9,12 @@ namespace ShikashiBot.Commands
     public class SongRequest : ModuleBase
     {
         public YouTubeDownloadService YoutubeDownloadService { get; set; }
+
         public SongService SongService { get; set; }
 
         [Alias("sq", "request", "play")]
-        [Command("songrequest", RunMode = RunMode.Async), Summary("Requests a song to be played")]
+        [Command("songrequest", RunMode = RunMode.Async)]
+        [Summary("Requests a song to be played")]
         public async Task Request([Remainder, Summary("URL of the video to play")] string url)
         {
             try
@@ -45,7 +47,8 @@ namespace ShikashiBot.Commands
             }
         }
 
-        [Command("clear"), Summary("Clears all songs in queue")]
+        [Command("clear")]
+        [Summary("Clears all songs in queue")]
         public async Task ClearQueue()
         {
             SongService.Clear();
@@ -53,7 +56,8 @@ namespace ShikashiBot.Commands
         }
 
         [Alias("next", "nextsong")]
-        [Command("skip"), Summary("Skips current song")]
+        [Command("skip")]
+        [Summary("Skips current song")]
         public async Task SkipSong()
         {
             SongService.Next();
@@ -61,13 +65,18 @@ namespace ShikashiBot.Commands
         }
 
         [Alias("np", "currentsong", "songname", "song")]
-        [Command("nowplaying"), Summary("Prints current playing song")]
+        [Command("nowplaying")]
+        [Summary("Prints current playing song")]
         public async Task NowPlaying()
         {
             if (SongService.NowPlaying == null)
+            {
                 await ReplyAsync($"{Context.User.Mention} current queue is empty");
+            }
             else
+            {
                 await ReplyAsync($"{Context.User.Mention} now playing `{SongService.NowPlaying.Title}` requested by {SongService.NowPlaying.Requester}");
+            }
         }
     }
 }

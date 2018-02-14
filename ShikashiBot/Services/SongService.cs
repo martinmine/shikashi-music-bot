@@ -14,13 +14,14 @@ namespace ShikashiBot.Services
         private IMessageChannel _messageChannel;
         private BufferBlock<DownloadedVideo> _songQueue;
 
-        public AudioPlaybackService AudioPlaybackService { get; set; }
-        public DownloadedVideo NowPlaying { get; private set; }
-
         public SongService()
         {
             this._songQueue = new BufferBlock<DownloadedVideo>();
         }
+
+        public AudioPlaybackService AudioPlaybackService { get; set; }
+
+        public DownloadedVideo NowPlaying { get; private set; }
 
         public void SetVoiceChannel(IVoiceChannel voiceChannel)
         {
@@ -31,6 +32,26 @@ namespace ShikashiBot.Services
         public void SetMessageChannel(IMessageChannel messageChannel)
         {
             this._messageChannel = messageChannel;
+        }
+
+        public void Next()
+        {
+            AudioPlaybackService.StopCurrentOperation();
+        }
+
+        public IList<DownloadedVideo> Clear()
+        {
+            IList<DownloadedVideo> skippedSongs;
+            _songQueue.TryReceiveAll(out skippedSongs);
+
+            Console.WriteLine($"Skipped {skippedSongs.Count} songs");
+
+            return skippedSongs;
+        }
+
+        public void Queue(DownloadedVideo video)
+        {
+            _songQueue.Post(video);
         }
 
         private async void ProcessQueue()
@@ -57,26 +78,6 @@ namespace ShikashiBot.Services
                     Console.WriteLine($"Error while playing song: {e}");
                 }
             }
-        }
-
-        public void Next()
-        {
-            AudioPlaybackService.StopCurrentOperation();
-        }
-
-        public IList<DownloadedVideo> Clear()
-        {
-            IList<DownloadedVideo> skippedSongs;
-            _songQueue.TryReceiveAll(out skippedSongs);
-
-            Console.WriteLine($"Skipped {skippedSongs.Count} songs");
-
-            return skippedSongs;
-        }
-
-        public void Queue(DownloadedVideo video)
-        {
-            _songQueue.Post(video);
         }
     }
 }

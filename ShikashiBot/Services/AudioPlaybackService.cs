@@ -9,20 +9,6 @@ namespace ShikashiBot.Services
     {
         private Process _currentProcess;
 
-        private Process CreateStream(string path)
-        {
-            var ffmpeg = new ProcessStartInfo
-            {
-                FileName = "ffmpeg",
-                Arguments = $"-i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
-                UseShellExecute = false,
-                RedirectStandardOutput = true
-            };
-
-            Console.WriteLine($"Starting ffmpeg with args {ffmpeg.Arguments}");
-            return Process.Start(ffmpeg);
-        }
-
         public async Task SendAsync(IAudioClient client, string path)
         {
             _currentProcess = CreateStream(path);
@@ -37,6 +23,20 @@ namespace ShikashiBot.Services
         public void StopCurrentOperation()
         {
             _currentProcess?.Kill();
+        }
+
+        private Process CreateStream(string path)
+        {
+            var ffmpeg = new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = $"-i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
+
+            Console.WriteLine($"Starting ffmpeg with args {ffmpeg.Arguments}");
+            return Process.Start(ffmpeg);
         }
     }
 }
