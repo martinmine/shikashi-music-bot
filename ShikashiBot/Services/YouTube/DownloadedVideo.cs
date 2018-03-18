@@ -1,11 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace ShikashiBot.Services.YouTube
 {
     /// <summary>
     /// Represents a downloaded video.
     /// </summary>
-    public class DownloadedVideo
+    public class DownloadedVideo : IPlayable
     {
         /// <summary>
         /// Title of the video
@@ -41,5 +43,19 @@ namespace ShikashiBot.Services.YouTube
         /// Person requesting the download
         /// </summary>
         public string Requester { get; set; }
+
+        public string DurationString => TimeSpan.FromSeconds(Duration).ToString();
+
+        public string Uri => FileName;
+
+        /// <summary>
+        /// Speed modifier passed to ffmpeg (Frequency)
+        /// </summary>
+        public int Speed { get; set; } = 48;
+
+        public void OnPostPlay()
+        {
+            File.Delete(FileName);
+        }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using Discord;
-using Discord.Audio;
-using ShikashiBot.Services.YouTube;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks.Dataflow;
+using Serilog;
 
 namespace ShikashiBot.Services
 {
@@ -12,16 +10,16 @@ namespace ShikashiBot.Services
     {
         private IVoiceChannel _voiceChannel;
         private IMessageChannel _messageChannel;
-        private BufferBlock<DownloadedVideo> _songQueue;
+        private BufferBlock<IPlayable> _songQueue;
 
         public SongService()
         {
-            this._songQueue = new BufferBlock<DownloadedVideo>();
+            _songQueue = new BufferBlock<IPlayable>();
         }
 
         public AudioPlaybackService AudioPlaybackService { get; set; }
 
-        public DownloadedVideo NowPlaying { get; private set; }
+        public IPlayable NowPlaying { get; private set; }
 
         public void SetVoiceChannel(IVoiceChannel voiceChannel)
         {
@@ -39,17 +37,16 @@ namespace ShikashiBot.Services
             AudioPlaybackService.StopCurrentOperation();
         }
 
-        public IList<DownloadedVideo> Clear()
+        public IList<IPlayable> Clear()
         {
-            IList<DownloadedVideo> skippedSongs;
-            _songQueue.TryReceiveAll(out skippedSongs);
+            _songQueue.TryReceiveAll(out var skippedSongs);
 
-            Console.WriteLine($"Skipped {skippedSongs.Count} songs");
+            Log.Information($"Skipped {skippedSongs.Count} songs");
 
             return skippedSongs;
         }
 
-        public void Queue(DownloadedVideo video)
+        public void Queue(IPlayable video)
         {
             _songQueue.Post(video);
         }
@@ -58,24 +55,24 @@ namespace ShikashiBot.Services
         {
             while (await _songQueue.OutputAvailableAsync())
             {
-                Console.WriteLine("Waiting for songs");
+                Log.Information("Waiting for songs");
                 NowPlaying = await _songQueue.ReceiveAsync();
                 try
                 {
-                    await _messageChannel?.SendMessageAsync($"Now playing **{NowPlaying.Title}** | `{TimeSpan.FromSeconds(NowPlaying.Duration)}` | requested by {NowPlaying.Requester} | {NowPlaying.Url}");
+                    await _messageChannel?.SendMessageAsync($"Now playing **{NowPlaying.Title}** | `{NowPlaying.DurationString}` | requested by {NowPlaying.Requester} | {NowPlaying.Url}");
 
-                    Console.WriteLine("Connecting to voice channel");
+                    Log.Information("Connecting to voice channel");
                     using (var audioClient = await _voiceChannel.ConnectAsync())
                     {
-                        Console.WriteLine("Connected!");
-                        await AudioPlaybackService.SendAsync(audioClient, NowPlaying.FileName);
+                        Log.Information("Connected!");
+                        await AudioPlaybackService.SendAsync(audioClient, NowPlaying.Uri, NowPlaying.Speed);
                     }
 
-                    File.Delete(NowPlaying.FileName);
+                    NowPlaying.OnPostPlay();
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Error while playing song: {e}");
+                    Log.Information($"Error while playing song: {e}");
                 }
             }
         }

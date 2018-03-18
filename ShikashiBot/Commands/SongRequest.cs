@@ -1,4 +1,5 @@
 ﻿using Discord.Commands;
+using Serilog;
 using ShikashiBot.Services;
 using ShikashiBot.Services.YouTube;
 using System;
@@ -16,6 +17,21 @@ namespace ShikashiBot.Commands
         [Command("songrequest", RunMode = RunMode.Async)]
         [Summary("Requests a song to be played")]
         public async Task Request([Remainder, Summary("URL of the video to play")] string url)
+        {
+            await Speedrun(url, 48);
+        }
+
+        [Alias("test")]
+        [Command("soundtest", RunMode = RunMode.Async)]
+        [Summary("Performs a sound test")]
+        public async Task SoundTest()
+        {
+            await Request("https://www.youtube.com/watch?v=i1GOn7EIbLg");
+        }
+
+        [Command("speedrun", RunMode = RunMode.Async)]
+        [Summary("Performs a sound test")]
+        public async Task Speedrun(string url, int speedModifier)
         {
             try
             {
@@ -36,6 +52,7 @@ namespace ShikashiBot.Commands
                 }
 
                 video.Requester = Context.User.Mention;
+                video.Speed = speedModifier;
 
                 await ReplyAsync($"{Context.User.Mention} queued **{video.Title}** | `{TimeSpan.FromSeconds(video.Duration)}` | {url}");
 
@@ -43,7 +60,44 @@ namespace ShikashiBot.Commands
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error while processing song requet: {e}");
+                Log.Information($"Error while processing song requet: {e}");
+            }
+        }
+
+        [Command("stream", RunMode = RunMode.Async)]
+        [Summary("Streams a livestream URL")]
+        public async Task Stream(string url)
+        {
+            try
+            {
+                if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                {
+                    await ReplyAsync($"{Context.User.Mention} please provide a valid URL");
+                    return;
+                }
+
+                var downloadAnnouncement = await ReplyAsync($"{Context.User.Mention} attempting to open {url}");
+                var stream = await YoutubeDownloadService.GetLivestreamData(url);
+                await downloadAnnouncement.DeleteAsync();
+
+                if (stream == null)
+                {
+                    await ReplyAsync($"{Context.User.Mention} unable to open live stream, make sure its is a valid supported URL or contact a server admin.");
+                    return;
+                }
+
+                stream.Requester = Context.User.Mention;
+                stream.Url = url;
+
+                Log.Information("Attempting to stream {@Stream}", stream);
+
+                await ReplyAsync($"{Context.User.Mention} queued **{stream.Title}** | `{stream.DurationString}` | {url}");
+
+                SongService.Queue(stream);
+            }
+            catch (Exception e)
+            {
+                Log.Information($"Error while processing song requet: {e}");
             }
         }
 

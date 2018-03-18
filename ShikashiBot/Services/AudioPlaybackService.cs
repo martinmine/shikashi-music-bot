@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace ShikashiBot.Services
 {
@@ -9,33 +10,34 @@ namespace ShikashiBot.Services
     {
         private Process _currentProcess;
 
-        public async Task SendAsync(IAudioClient client, string path)
+        public async Task SendAsync(IAudioClient client, string path, int speedModifier)
         {
-            _currentProcess = CreateStream(path);
+            _currentProcess = CreateStream(path, speedModifier);
             var output = _currentProcess.StandardOutput.BaseStream;
-            var discord = client.CreatePCMStream(AudioApplication.Music);
+            var discord = client.CreatePCMStream(AudioApplication.Music, 96 * 1024);
             await output.CopyToAsync(discord);
             await discord.FlushAsync();
             _currentProcess.WaitForExit();
-            Console.WriteLine($"ffmpeg exited with code {_currentProcess.ExitCode}");
+            Log.Information($"ffmpeg exited with code {_currentProcess.ExitCode}");
         }
 
         public void StopCurrentOperation()
         {
-            _currentProcess?.Kill();
+            _currentProcess.Kill();
+            _currentProcess?.Dispose();
         }
 
-        private Process CreateStream(string path)
+        private static Process CreateStream(string path, int speedModifier)
         {
             var ffmpeg = new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = $"-i \"{path}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                Arguments = $"-i \"{path}\" -ac 2 -f s16le -ar {speedModifier}000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             };
 
-            Console.WriteLine($"Starting ffmpeg with args {ffmpeg.Arguments}");
+            Log.Information($"Starting ffmpeg with args {ffmpeg.Arguments}");
             return Process.Start(ffmpeg);
         }
     }

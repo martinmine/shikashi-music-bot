@@ -7,6 +7,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using ShikashiBot.Services;
 using ShikashiBot.Services.YouTube;
 
@@ -35,7 +36,7 @@ namespace ShikashiBot
                 var botSecret = File.ReadAllText(secretLocation);
 
                 _client = new DiscordSocketClient();
-                _client.Log += Log;
+                _client.Log += LogT;
 
                 _commands = new CommandService();
 
@@ -124,9 +125,9 @@ namespace ShikashiBot
             }
         }
 
-        private Task Log(LogMessage msg)
+        private Task LogT(LogMessage msg)
         {
-            Console.WriteLine($"[LOG] {msg.Message}");
+            Log.Information(msg.Message);
             return Task.CompletedTask;
         }
 
@@ -141,7 +142,7 @@ namespace ShikashiBot
         {
             if (arg.Name.ToLower() == Environment.GetEnvironmentVariable("SERVER_NAME"))
             {
-                Console.WriteLine($"Registering handler for {arg.Name}");
+                Log.Information($"Registering handler for {arg.Name}");
                 var musicVoiceChannel = arg.VoiceChannels.Where(t => t.Name.ToLower().Contains("general")).SingleOrDefault();
                 var musicRequestChannel = arg.TextChannels.Where(t => t.Name.ToLower().Contains("music")).SingleOrDefault();
 
@@ -149,7 +150,7 @@ namespace ShikashiBot
                 _services.GetService<SongService>().SetMessageChannel(musicRequestChannel);
             }
 
-            Console.WriteLine($"Discovered server {arg.Name}");
+            Log.Information($"Discovered server {arg.Name}");
             return Task.CompletedTask;
         }
     }
