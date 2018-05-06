@@ -32,7 +32,7 @@ namespace ShikashiBot.Services
             var ffmpeg = new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = $"-i \"{path}\" -ac 2 -f s16le -ar {speedModifier}000 pipe:1",
+                Arguments = $"-i \"{path}\" -ac 2 -f s16le -filter:a \"volume=0.02\" -ar {speedModifier}000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             };
